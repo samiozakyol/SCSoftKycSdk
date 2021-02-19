@@ -1,1 +1,1 @@
-# SCSoftKycSdk
+SCSoftKycSolutionSdk
