@@ -1,7 +1,7 @@
 Pod::Spec.new do |spec|
 
   spec.name         = "SCSoftKycSolutionSdk"
-  spec.version      = "0.0.1"
+  spec.version      = "0.0.2"
   spec.summary      = "SCSoftKycSolutionSdk summary"
 
   spec.homepage     = "https://github.com/samiozakyol/SCSoftKycSolutionSdk"
@@ -17,7 +17,7 @@ Pod::Spec.new do |spec|
   spec.swift_version = "5.0"
 
   spec.dependency "QKMRZParser", '1.0.1'
-  spec.dependency "NFCPassportReader" , '1.0.17'
+  spec.dependency "NFCPassportReader" , '1.1.1'
   spec.dependency "SwiftyTesseract", '3.1.3'
   spec.dependency "JitsiMeetSDK"
   spec.xcconfig          = { 'OTHER_LDFLAGS' => '-weak_framework CryptoKit -weak_framework CoreNFC',
