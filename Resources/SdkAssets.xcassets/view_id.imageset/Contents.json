@@ -1,17 +1,16 @@
 {
   "images" : [
     {
-      "filename" : "camera_button_on (2).png",
+      "filename" : "business-cards.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "camera_button_on (1).png",
+      "filename" : "business-cards (1).png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "camera_button_on.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

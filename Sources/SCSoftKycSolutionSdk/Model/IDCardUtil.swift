@@ -11,10 +11,10 @@ import Combine
 import NFCPassportReader
 
 class IDCardUtil : ObservableObject {
-    @Published var passportNumber : String = UserDefaults.standard.string(forKey:"passportNumber" ) ?? ""
-    @Published var dateOfBirth: String = UserDefaults.standard.string(forKey:"dateOfBirth" ) ?? ""
-    @Published var expiryDate: String = UserDefaults.standard.string(forKey:"expiryDate" ) ?? ""
-    @Published var passport : NFCPassportModel?
+    public var passportNumber : String = UserDefaults.standard.string(forKey:"passportNumber" ) ?? ""
+    public var dateOfBirth: String = UserDefaults.standard.string(forKey:"dateOfBirth" ) ?? ""
+    public var expiryDate: String = UserDefaults.standard.string(forKey:"expiryDate" ) ?? ""
+    public var passport : NFCPassportModel?
     
     var isValid : Bool {
         return passportNumber.count >= 8 && dateOfBirth.count == 6 && expiryDate.count == 6

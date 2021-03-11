@@ -50,7 +50,7 @@ class OvalOverlayView: UIView {
         ovalLayer.path =  UIBezierPath(ovalIn: overlayFrame).cgPath
         ovalLayer.fillColor = UIColor.clear.cgColor
         ovalLayer.strokeColor = UIColor.white.cgColor
-        ovalLayer.lineWidth = 5
+        ovalLayer.lineWidth = 8
         ovalLayer.frame = bounds
         // draw layer that fills the view
         //let fillLayer = CAShapeLayer()

@@ -16,7 +16,13 @@ public enum ViewType {
 }
 
 public protocol SCSoftKycViewDelegate: class {
-    func didDetectSdkData(_ kycView: SCSoftKycView, didDetect sdkModel: SdkModel)
+    func didDetectSdkDataBeforeJitsi(_ kycView: SCSoftKycView, didDetect sdkModel: SdkModel)
+    
+    func didCaptureIdFrontPhoto(_ kycView : SCSoftKycView, image : UIImage , imageBase64 : String, cropImage : UIImage , cropImageBase64 : String)
+    
+    func didCaptureIdBackPhoto(_ kycView : SCSoftKycView, image : UIImage , imageBase64 : String, cropImage : UIImage , cropImageBase64 : String)
+    
+    func didCaptureSelfiePhoto(_ kycView : SCSoftKycView, image : UIImage , imageBase64 : String, cropImage : UIImage , cropImageBase64 : String)
     
     func didReadNfc(_ kycView : SCSoftKycView , didRead passportModel : NFCPassportModel)
     
@@ -48,6 +54,7 @@ public class SCSoftKycView: UIView {
         }
      }
     }
+    private var selectedViewType = ViewType.idPhoto
     
     //Video Capture
     private var bufferSize: CGSize = .zero
@@ -79,7 +86,6 @@ public class SCSoftKycView: UIView {
     private var checkFace = false
     private var checkMrz = false
     private var checkRectangle = false
-    private var selectedViewType = ViewType.idPhoto
     
     private var backCamera : AVCaptureDevice?
     private var frontCamera : AVCaptureDevice?
@@ -93,6 +99,7 @@ public class SCSoftKycView: UIView {
     //Capture result
     private var capturedImage: UIImage!
     private var capturedFace: UIImage!
+    private var capturedMrz: UIImage!
     
     fileprivate let tesseract = SwiftyTesseract(language: .custom("ocrb"), dataSource: Bundle(for: SCSoftKycView.self), engineMode: .tesseractOnly)
     //fileprivate let tesseract = SwiftyTesseract(language: .custom("ocrb"), dataSource: Bundle(for: SCSoftKycView.self), engineMode: .tesseractOnly)
@@ -106,10 +113,11 @@ public class SCSoftKycView: UIView {
     // Jitsi config
     fileprivate var inJitsi : Bool = false
     fileprivate var jitsiMeetView = JitsiMeetView()
-    fileprivate var pipViewCoordinator: PiPViewCoordinator?
     private var didConferenceTerminated:((_ data: [AnyHashable : Any]?) -> Void)?
     
-    private var cameraColor = UIColor(red: 33.0 / 255.0, green: 209.0 / 255.0, blue: 144.0 / 255.0, alpha: 1.0)
+    //private var cameraColor = UIColor(red: 33.0 / 255.0, green: 209.0 / 255.0, blue: 144.0 / 255.0, alpha: 1.0)
+    private var cameraColor = UIColor(red: 27.0 / 255.0, green: 170.0 / 255.0, blue: 194.0 / 255.0, alpha: 1.0)
+    
     private var hasNfc = false
     private let idCardReader = PassportReader()
     
@@ -198,7 +206,7 @@ public class SCSoftKycView: UIView {
     }
     
     fileprivate func setViewStyle() {
-        backgroundColor = .black
+        backgroundColor = .clear
     }
     
     @objc func runTimedCode(){
@@ -432,6 +440,9 @@ public class SCSoftKycView: UIView {
     }
     
      public func showJitsiView(){
+        // for save data
+        delegate?.didDetectSdkDataBeforeJitsi(self, didDetect: sdkModel)
+        
         selectedViewType = .jitsi
         DispatchQueue.main.async {
         self.viewChange()
@@ -605,8 +616,8 @@ public class SCSoftKycView: UIView {
     public func setJitsiConference(url : String, room : String, token : String){
         if selectedViewType == .jitsi {
             add_removeJitsiInfoViews(isAdd: false)
-            openJitsiMeet(url: url, room: room, token: token)
             add_removeJitsiView(isAdd: true)
+            openJitsiMeet(url: url, room: room, token: token)
         }
     }
     
@@ -678,22 +689,34 @@ public class SCSoftKycView: UIView {
                                completion: {_ in
                                 self.flipImageView.alpha = 0
                                })
-                idPhotoLabel.shape("T.C Kimlik Kartınızın arka yüzünü yukarıda belirtilen kare içerisine yerleştirerek fotoğraf çekme butonuna basınız.", font: UIFont.boldSystemFont(ofSize: 18))
+                idPhotoLabel.shape("T.C Kimlik Kartınızın arka yüzünü yukarıda belirtilen alan içerisine yerleştirerek fotoğraf çekme butonuna basınız.", font: UIFont.boldSystemFont(ofSize: 18))
                 sdkModel.idFrontImage = UIImage(cgImage: self.inputCGImage)
+                sdkModel.autoCropped_idFrontImage = self.capturedImage
+                sdkModel.base64_idFrontImage =  sdkModel.idFrontImage?.toBase64(format: .png)
+                sdkModel.base64_autoCropped_idFrontImage = sdkModel.autoCropped_idFrontImage?.toBase64(format: .png)
                 isFront = false
-                self.delegate?.didDetectSdkData(self, didDetect: sdkModel)
+                //self.delegate?.didDetectSdkData(self, didDetect: sdkModel)
+                self.delegate?.didCaptureIdFrontPhoto(self, image: sdkModel.idFrontImage!, imageBase64: sdkModel.base64_idFrontImage!, cropImage: sdkModel.autoCropped_idFrontImage!, cropImageBase64: sdkModel.base64_autoCropped_idFrontImage!)
             }
             else if !isFront{
-                idPhotoLabel.shape("T.C Kimlik Kartınızın ön yüzünü yukarıda belirtilen kare içerisine yerleştirerek fotoğraf çekme butonuna basınız.", font: UIFont.boldSystemFont(ofSize: 18))
+                idPhotoLabel.shape("T.C Kimlik Kartınızın ön yüzünü yukarıda belirtilen alan içerisine yerleştirerek fotoğraf çekme butonuna basınız.", font: UIFont.boldSystemFont(ofSize: 18))
                 isFront = true
                 sdkModel.idBackImage = UIImage(cgImage: self.inputCGImage)
-                self.delegate?.didDetectSdkData(self, didDetect: sdkModel)
+                sdkModel.autoCropped_idBackImage = self.capturedImage
+                sdkModel.base64_idBackImage =  sdkModel.idBackImage?.toBase64(format: .png)
+                sdkModel.base64_autoCropped_idBackImage = sdkModel.autoCropped_idBackImage?.toBase64(format: .png)
+                //self.delegate?.didDetectSdkData(self, didDetect: sdkModel)
+                self.delegate?.didCaptureIdBackPhoto(self, image: sdkModel.idBackImage!, imageBase64: sdkModel.base64_idBackImage!, cropImage: sdkModel.autoCropped_idBackImage!, cropImageBase64: sdkModel.base64_autoCropped_idBackImage!)
                 getNextViewType()
             }
         }
         else if selectedViewType == .selfie {
             sdkModel.selfieImage = UIImage(cgImage: self.inputCGImage)
-            self.delegate?.didDetectSdkData(self, didDetect: sdkModel)
+            sdkModel.autoCropped_selfieImage = self.capturedFace
+            sdkModel.base64_selfieImage =  sdkModel.selfieImage?.toBase64(format: .png)
+            sdkModel.base64_autoCropped_selfieImage = sdkModel.autoCropped_selfieImage?.toBase64(format: .png)
+            //self.delegate?.didDetectSdkData(self, didDetect: sdkModel)
+            self.delegate?.didCaptureSelfiePhoto(self, image: sdkModel.selfieImage!, imageBase64: sdkModel.base64_selfieImage!, cropImage: sdkModel.autoCropped_selfieImage!, cropImageBase64: sdkModel.base64_autoCropped_selfieImage!)
             getNextViewType()
         }
     }
@@ -731,10 +754,6 @@ public class SCSoftKycView: UIView {
             return
         }
         
-        //TODO REMOVE
-        //readCard(nil)
-        //return
-        
         if sdkModel.mrzInfo != nil {
             let documentNumber = sdkModel.mrzInfo!.documentNumber
             let birthDate = sdkModel.mrzInfo!.birthDate!
@@ -765,8 +784,10 @@ extension SCSoftKycView{
             
             nfcReadButton.translatesAutoresizingMaskIntoConstraints = false
             NSLayoutConstraint.activate([
+                nfcReadButton.heightAnchor.constraint(equalToConstant: 50),
                 nfcReadButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -30),
-                nfcReadButton.centerXAnchor.constraint(equalTo: centerXAnchor)
+                nfcReadButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 30),
+                nfcReadButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30)
             ])
         }
         else{
@@ -790,8 +811,10 @@ extension SCSoftKycView{
             
             jitsiButton.translatesAutoresizingMaskIntoConstraints = false
             NSLayoutConstraint.activate([
+                jitsiButton.heightAnchor.constraint(equalToConstant: 50),
                 jitsiButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -30),
-                jitsiButton.centerXAnchor.constraint(equalTo: centerXAnchor)
+                jitsiButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 30),
+                jitsiButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30)
             ])
         }
         else{
@@ -815,8 +838,10 @@ extension SCSoftKycView{
     
             informationNextButton.translatesAutoresizingMaskIntoConstraints = false
             NSLayoutConstraint.activate([
+                informationNextButton.heightAnchor.constraint(equalToConstant: 50),
                 informationNextButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -30),
-                informationNextButton.centerXAnchor.constraint(equalTo: centerXAnchor)
+                informationNextButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 30),
+                informationNextButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30)
             ])
             
         }
@@ -979,8 +1004,13 @@ extension SCSoftKycView{
     private func initiateInformationNextButton() {
         let text = "Devam"
         informationNextButton.setTitle(text, for: .normal)
-        informationNextButton.setTitleColor(.red, for: .normal)
+        informationNextButton.setTitleColor(.white, for: .normal)
+        informationNextButton.backgroundColor = cameraColor
+        informationNextButton.titleLabel?.font = UIFont.systemFont(ofSize: 17.0, weight: .semibold)
         informationNextButton.addTarget(self, action: #selector(self.informationNextButtonInput), for:.touchUpInside)
+        informationNextButton.layer.cornerRadius = 8
+        informationNextButton.layer.masksToBounds = true
+        //informationNextButton.layoutIfNeeded()
     }
     
     fileprivate func initiateInformationLabel(text : String) {
@@ -990,15 +1020,20 @@ extension SCSoftKycView{
     
     fileprivate func initiateJitsiLabel() {
         jitsiLabel.numberOfLines = 0
-        let text = "Şu anda tüm temsilcilerimiz diğer müşterilerimize hizmet vermektedir. \n\nEn kısa sürede sizi müşteri hizmetlerimize bağlayacağız.\n\nLütfen bekleyiniz."
+        let text = "Birazdan müşteri temsilcisine bağlanacaksınız. \nLütfen bekleyiniz."
         jitsiLabel.shape(text, font: UIFont.boldSystemFont(ofSize: 15))
     }
     
     private func initiateJitsiButton() {
-        let text = "Vazgeç"
+        let text = "İptal Et"
         jitsiButton.setTitle(text, for: .normal)
-        jitsiButton.setTitleColor(.red, for: .normal)
+        jitsiButton.setTitleColor(.white, for: .normal)
+        jitsiButton.backgroundColor = cameraColor
+        jitsiButton.titleLabel?.font = UIFont.systemFont(ofSize: 17.0, weight: .semibold)
         jitsiButton.addTarget(self, action: #selector(self.closeButtonInput), for:.touchUpInside)
+        jitsiButton.layer.cornerRadius = 8
+        jitsiButton.layer.masksToBounds = true
+        //jitsiButton.layoutIfNeeded()
     }
     
     fileprivate func initiateNfcReadLabel(forceText : String) {
@@ -1019,8 +1054,13 @@ extension SCSoftKycView{
             text = "Devam"
         }
         nfcReadButton.setTitle(text, for: .normal)
-        nfcReadButton.setTitleColor(.red, for: .normal)
+        nfcReadButton.setTitleColor(.white, for: .normal)
+        nfcReadButton.backgroundColor = cameraColor
+        nfcReadButton.titleLabel?.font = UIFont.systemFont(ofSize: 17.0, weight: .semibold)
         nfcReadButton.addTarget(self, action: #selector(self.nfcReadInput), for:.touchUpInside)
+        nfcReadButton.layer.cornerRadius = 8
+        nfcReadButton.layer.masksToBounds = true
+        //nfcReadButton.layoutIfNeeded()
     }
     
     private func initiateFlipImageView() {
@@ -1072,7 +1112,7 @@ extension SCSoftKycView{
     
     private func initiateStatement() {
         idPhotoLabel.numberOfLines = 0
-        idPhotoLabel.shape("T.C Kimlik Kartınızın ön yüzünü yukarıda belirtilen kare içerisine yerleştiriniz.", font: UIFont.boldSystemFont(ofSize: 18))
+        idPhotoLabel.shape("T.C Kimlik Kartınızın ön yüzünü yukarıda belirtilen alan içerisine yerleştiriniz.", font: UIFont.boldSystemFont(ofSize: 18))
     }
     
     private func initiateFlashButton(){
@@ -1327,6 +1367,9 @@ extension SCSoftKycView{
         checkMrz = true
         updateScanArea()
         sdkModel.mrzInfo = scanResult
+        self.capturedMrz = self.getUIImage(from: image)
+        
+        sdkModel.mrzImage = self.capturedMrz
         //self.delegate?.didDetectSdkData(self, didDetect: sdkModel)
     }
     
@@ -1493,7 +1536,7 @@ extension SCSoftKycView{
     fileprivate func callResultScreen(_ idCardUtil:IDCardUtil){
         sdkModel.nfcData = idCardUtil
         //performSegue(withIdentifier: "showResult", sender: self)
-        delegate?.didDetectSdkData(self, didDetect: sdkModel)
+        //delegate?.didDetectSdkData(self, didDetect: sdkModel)
         delegate?.didReadNfc(self, didRead: idCardUtil.passport!)
         //showJitsiView()
         getNextViewType()
@@ -1553,108 +1596,8 @@ extension SCSoftKycView: JitsiMeetViewDelegate {
         jitsiMeetView.removeFromSuperview()
     }
 
-    public func enterPicture(inPicture data: [AnyHashable : Any]!) {
-        DispatchQueue.main.async {
-            self.pipViewCoordinator?.enterPictureInPicture()
-        }
-    }
-    
     public func conferenceWillJoin(_ data: [AnyHashable : Any]!) {
         print("conferenceWillJoin")
-    }
-    
-    fileprivate func openJitsiMeet1() {
-        cleanUp()
-
-        // create and configure jitsimeet view
-        let jitsiMeetView = JitsiMeetView()
-        jitsiMeetView.delegate = self
-        self.jitsiMeetView = jitsiMeetView
-        let room: String = "testfox"
-        let options = JitsiMeetConferenceOptions.fromBuilder { (builder) in
-            builder.serverURL = URL(string: "https://meet.jit.si")
-            builder.room = room
-            builder.welcomePageEnabled = false
-            builder.audioOnly = false
-            builder.audioMuted = false
-            builder.videoMuted = false
-            
-            builder.setFeatureFlag("add-people.enabled", withBoolean: false)
-            builder.setFeatureFlag("invite.enabled", withBoolean: false)
-            builder.setFeatureFlag("raise-hand.enabled", withBoolean: false)
-            builder.setFeatureFlag("video-share.enabled", withBoolean: false)
-            builder.setFeatureFlag("toolbox.alwaysVisible", withBoolean: false)
-            builder.setFeatureFlag("live-streaming.enabled", withBoolean: false)
-            builder.setFeatureFlag("chat.enabled", withBoolean: false)
-            builder.setFeatureFlag("meeting-password.enabled", withBoolean: false)
-            builder.setFeatureFlag("calendar.enabled", withBoolean: false)
-            builder.setFeatureFlag("conference-timer.enabled", withBoolean: false)
-            builder.setFeatureFlag("call-integration.enabled", withBoolean: false)
-            builder.setFeatureFlag("close-captions.enabled", withBoolean: false)
-            builder.setFeatureFlag("kick-out.enabled", withBoolean: false)
-            builder.setFeatureFlag("meeting-name.enabled", withBoolean: false)
-            //builder.setFeatureFlag("pip.enabled", withBoolean: false)
-            builder.setFeatureFlag("recording.enabled", withBoolean: false)
-            builder.setFeatureFlag("resolution", withBoolean: false)
-            builder.setFeatureFlag("server-url-change.enabled", withBoolean: false)
-            builder.setFeatureFlag("tile-view.enabled", withBoolean: false)
-        }
-        jitsiMeetView.join(options)
-
-        // Enable jitsimeet view to be a view that can be displayed
-        // on top of all the things, and let the coordinator to manage
-        // the view state and interactions
-        pipViewCoordinator = PiPViewCoordinator(withView: jitsiMeetView)
-        pipViewCoordinator?.initialPositionInSuperview = .upperLeftCorner
-        pipViewCoordinator?.configureAsStickyView(withParentView: self)
-        //pipViewCoordinator?.stopDragGesture()
-        // animate in
-        jitsiMeetView.alpha = 0
-        pipViewCoordinator?.show()
-    }
-
-    fileprivate func cleanUp1() {
-        jitsiMeetView.removeFromSuperview()
-        //jitsiMeetView = nil
-        pipViewCoordinator = nil
-    }
-    
-    fileprivate func openJitsiMeet2() {
-        
-        let defaultOptions = JitsiMeetConferenceOptions.fromBuilder { (builder) in
-            // for JaaS replace url with https://8x8.vc
-            builder.serverURL = URL(string: "https://meet.jit.si")
-            //builder.serverURL = URL(string: "https://jitsi.ziraatkatilim.com.tr")
-            // for JaaS use the obtained Jitsi JWT
-            // builder.token = "SampleJWT"
-            builder.welcomePageEnabled = false
-        }
-        JitsiMeet.sharedInstance().defaultConferenceOptions = defaultOptions
-        
-        let room: String = "testfox"
-        if(room.count < 1) {
-            return
-        }
-        
-        // create and configure jitsimeet view
-        let jitsiMeetView = JitsiMeetView()
-        jitsiMeetView.delegate = self
-        self.jitsiMeetView = jitsiMeetView
-        let options = JitsiMeetConferenceOptions.fromBuilder { (builder) in
-            // for JaaS use <tenant>/<roomName> format
-            builder.room = room
-        }
-        
-        // setup view controller
-        //let vc = UIViewController()
-        //vc.modalPresentationStyle = .fullScreen
-        //vc.view = jitsiMeetView
-        
-        //view = jitsiMeetView
-        // join room and display jitsi-call
-        jitsiMeetView.join(options)
-        //present(vc, animated: true, completion: nil)
-        
     }
     
     fileprivate func openJitsiMeet(url : String, room : String, token : String) {

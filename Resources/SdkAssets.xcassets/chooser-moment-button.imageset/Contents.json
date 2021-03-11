@@ -1,17 +1,16 @@
 {
   "images" : [
     {
-      "filename" : "camera_button_on (2).png",
+      "filename" : "chooser-moment-button.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "camera_button_on (1).png",
+      "filename" : "chooser-moment-button@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "camera_button_on.png",
       "idiom" : "universal",
       "scale" : "3x"
     }
