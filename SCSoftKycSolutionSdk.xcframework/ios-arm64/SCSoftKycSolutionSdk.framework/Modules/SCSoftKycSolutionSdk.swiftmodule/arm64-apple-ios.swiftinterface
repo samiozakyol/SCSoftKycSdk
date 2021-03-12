@@ -1,0 +1,170 @@
+// swift-interface-format-version: 1.0
+// swift-compiler-version: Apple Swift version 5.3.2 (swiftlang-1200.0.45 clang-1200.0.32.28)
+// swift-module-flags: -target arm64-apple-ios13.0 -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -Onone -module-name SCSoftKycSolutionSdk
+import AVFoundation
+import Combine
+import CoreGraphics
+import CoreImage
+import CoreNFC
+import Foundation
+import ImageIO
+import JitsiMeetSDK
+import NFCPassportReader
+import QKMRZParser
+@_exported import SCSoftKycSolutionSdk
+import Swift
+import SwiftyTesseract
+import UIKit
+import Vision
+precedencegroup ForwardPipe {
+  associativity: left
+  higherThan: LogicalConjunctionPrecedence
+}
+infix operator |> : ForwardPipe
+public func |> <T, U>(value: T, function: ((T) -> U)) -> U
+final public class LinkedListViewType<T> {
+  public class LinkedListViewTypeNode<T> {
+    public init(value: T)
+    @objc deinit
+  }
+  public typealias Node = SCSoftKycSolutionSdk.LinkedListViewType<T>.LinkedListViewTypeNode<T>
+  final public var last: SCSoftKycSolutionSdk.LinkedListViewType<T>.Node? {
+    get
+  }
+  final public var isEmpty: Swift.Bool {
+    get
+  }
+  final public var count: Swift.Int {
+    get
+  }
+  public init()
+  final public subscript(index: Swift.Int) -> T {
+    get
+  }
+  final public func node(at index: Swift.Int) -> SCSoftKycSolutionSdk.LinkedListViewType<T>.Node
+  final public func append(_ value: T)
+  final public func append(_ node: SCSoftKycSolutionSdk.LinkedListViewType<T>.Node)
+  final public func append(_ list: SCSoftKycSolutionSdk.LinkedListViewType<T>)
+  final public func insert(_ value: T, at index: Swift.Int)
+  final public func insert(_ newNode: SCSoftKycSolutionSdk.LinkedListViewType<T>.Node, at index: Swift.Int)
+  final public func insert(_ list: SCSoftKycSolutionSdk.LinkedListViewType<T>, at index: Swift.Int)
+  final public func removeAll()
+  @discardableResult
+  final public func remove(node: SCSoftKycSolutionSdk.LinkedListViewType<T>.Node) -> T
+  @discardableResult
+  final public func removeLast() -> T
+  @discardableResult
+  final public func remove(at index: Swift.Int) -> T
+  @objc deinit
+}
+extension LinkedListViewType : Swift.CustomStringConvertible {
+  final public var description: Swift.String {
+    get
+  }
+}
+extension LinkedListViewType {
+  final public func reverse()
+}
+extension LinkedListViewType {
+  final public func map<U>(transform: (T) -> U) -> SCSoftKycSolutionSdk.LinkedListViewType<U>
+  final public func filter(predicate: (T) -> Swift.Bool) -> SCSoftKycSolutionSdk.LinkedListViewType<T>
+}
+extension LinkedListViewType : Swift.ExpressibleByArrayLiteral {
+  public convenience init(arrayLiteral elements: T...)
+  public typealias ArrayLiteralElement = T
+}
+extension LinkedListViewType : Swift.Collection {
+  public typealias Index = SCSoftKycSolutionSdk.LinkedListViewTypeIndex<T>
+  final public var startIndex: SCSoftKycSolutionSdk.LinkedListViewType<T>.Index {
+    get
+  }
+  final public var endIndex: SCSoftKycSolutionSdk.LinkedListViewType<T>.Index {
+    get
+  }
+  final public subscript(position: SCSoftKycSolutionSdk.LinkedListViewType<T>.Index) -> T {
+    get
+  }
+  final public func index(after idx: SCSoftKycSolutionSdk.LinkedListViewType<T>.Index) -> SCSoftKycSolutionSdk.LinkedListViewType<T>.Index
+  public typealias Element = T
+  public typealias Iterator = Swift.IndexingIterator<SCSoftKycSolutionSdk.LinkedListViewType<T>>
+  public typealias SubSequence = Swift.Slice<SCSoftKycSolutionSdk.LinkedListViewType<T>>
+  public typealias Indices = Swift.DefaultIndices<SCSoftKycSolutionSdk.LinkedListViewType<T>>
+}
+public struct LinkedListViewTypeIndex<T> : Swift.Comparable {
+  public static func == <T>(lhs: SCSoftKycSolutionSdk.LinkedListViewTypeIndex<T>, rhs: SCSoftKycSolutionSdk.LinkedListViewTypeIndex<T>) -> Swift.Bool
+  public static func < <T>(lhs: SCSoftKycSolutionSdk.LinkedListViewTypeIndex<T>, rhs: SCSoftKycSolutionSdk.LinkedListViewTypeIndex<T>) -> Swift.Bool
+}
+@_hasMissingDesignatedInitializers public class QKMRZScanResult {
+  final public let documentImage: UIKit.UIImage
+  final public let documentType: Swift.String
+  final public let countryCode: Swift.String
+  final public let surnames: Swift.String
+  final public let givenNames: Swift.String
+  final public let documentNumber: Swift.String
+  final public let nationality: Swift.String
+  final public let birthDate: Foundation.Date?
+  final public let sex: Swift.String?
+  final public let expiryDate: Foundation.Date?
+  final public let personalNumber: Swift.String
+  final public let personalNumber2: Swift.String?
+  public var faceImage: UIKit.UIImage? {
+    get
+  }
+  @objc deinit
+}
+public enum ViewType {
+  case idPhoto
+  case selfie
+  case nfcRead
+  case jitsi
+  public static func == (a: SCSoftKycSolutionSdk.ViewType, b: SCSoftKycSolutionSdk.ViewType) -> Swift.Bool
+  public var hashValue: Swift.Int {
+    get
+  }
+  public func hash(into hasher: inout Swift.Hasher)
+}
+public protocol SCSoftKycViewDelegate : AnyObject {
+  func didDetectSdkDataBeforeJitsi(_ kycView: SCSoftKycSolutionSdk.SCSoftKycView, didDetect sdkModel: SCSoftKycSolutionSdk.SdkModel)
+  func didCaptureIdFrontPhoto(_ kycView: SCSoftKycSolutionSdk.SCSoftKycView, image: UIKit.UIImage, imageBase64: Swift.String, cropImage: UIKit.UIImage, cropImageBase64: Swift.String)
+  func didCaptureIdBackPhoto(_ kycView: SCSoftKycSolutionSdk.SCSoftKycView, image: UIKit.UIImage, imageBase64: Swift.String, cropImage: UIKit.UIImage, cropImageBase64: Swift.String)
+  func didCaptureSelfiePhoto(_ kycView: SCSoftKycSolutionSdk.SCSoftKycView, image: UIKit.UIImage, imageBase64: Swift.String, cropImage: UIKit.UIImage, cropImageBase64: Swift.String)
+  func didReadNfc(_ kycView: SCSoftKycSolutionSdk.SCSoftKycView, didRead passportModel: NFCPassportReader.NFCPassportModel)
+  func didClose(_ kycView: SCSoftKycSolutionSdk.SCSoftKycView, didDetect sdkModel: SCSoftKycSolutionSdk.SdkModel)
+}
+@objc @_inheritsConvenienceInitializers @IBDesignable public class SCSoftKycView : UIKit.UIView {
+  public var forceNfc: Swift.Bool
+  weak public var delegate: SCSoftKycSolutionSdk.SCSoftKycViewDelegate?
+  public var viewTypes: [SCSoftKycSolutionSdk.ViewType] {
+    get
+    set(newVal)
+  }
+  @objc override dynamic public init(frame: CoreGraphics.CGRect)
+  @objc required dynamic public init?(coder aDecoder: Foundation.NSCoder)
+  @objc override dynamic public func layoutSubviews()
+  public func startScanning()
+  public func stopScanning()
+  public func showJitsiView()
+  public func showNfcView()
+  public func showSelfieView()
+  public func showIdPhotoView()
+  public func setJitsiConference(url: Swift.String, room: Swift.String, token: Swift.String)
+  @objc deinit
+}
+extension SCSoftKycView : AVFoundation.AVCaptureVideoDataOutputSampleBufferDelegate {
+  @objc dynamic public func captureOutput(_ output: AVFoundation.AVCaptureOutput, didOutput sampleBuffer: CoreMedia.CMSampleBuffer, from connection: AVFoundation.AVCaptureConnection)
+}
+extension SCSoftKycView : JitsiMeetSDK.JitsiMeetViewDelegate {
+  @objc dynamic public func conferenceJoined(_ data: [Swift.AnyHashable : Any]!)
+  @objc dynamic public func conferenceTerminated(_ data: [Swift.AnyHashable : Any]!)
+  @objc dynamic public func conferenceWillJoin(_ data: [Swift.AnyHashable : Any]!)
+}
+@_hasMissingDesignatedInitializers public class SdkModel {
+  @objc deinit
+}
+public enum ImageFormat {
+  case png
+  case jpeg(CoreGraphics.CGFloat)
+}
+extension UIImage {
+  public func toBase64(format: SCSoftKycSolutionSdk.ImageFormat) -> Swift.String?
+}
