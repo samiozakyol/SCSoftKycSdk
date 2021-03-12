@@ -1,7 +1,7 @@
 Pod::Spec.new do |spec|
 
   spec.name         = "SCSoftKycSolutionSdk"
-  spec.version      = "0.0.2"
+  spec.version      = "0.0.3"
   spec.summary      = "SCSoftKycSolutionSdk summary"
 
   spec.homepage     = "https://github.com/samiozakyol/SCSoftKycSolutionSdk"
@@ -10,10 +10,11 @@ Pod::Spec.new do |spec|
   spec.platform = :ios
   spec.ios.deployment_target = "13.0"
 
-  spec.source       = { :git => "https://github.com/samiozakyol/SCSoftKycSolutionSdk.git", :tag => "#{spec.version}" }
+  spec.source      = { 
+        :http => 'https://github.com/samiozakyol/SCSoftKycSolutionSdk/archive/0.0.3.tar.gz'
+  }
 
-  spec.source_files  = "Sources/**/*"
-  spec.resources = "Resources/*"
+  spec.ios.vendored_frameworks = 'SCSoftKycSolutionSdk.xcframework'
   spec.swift_version = "5.0"
 
   spec.dependency "QKMRZParser", '1.0.1'
